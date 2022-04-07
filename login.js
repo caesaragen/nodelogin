@@ -29,10 +29,7 @@ app.get("/", function (request, response) {
   response.sendFile(path.join(__dirname + "/login.html"));
 });
 // http://localhost:3000/
-app.get("/homepage", function (request, response) {
-  // Render homepage template
-  response.sendFile(path.join(__dirname + "/homepage.html"));
-});
+
 // http://localhost:3000/auth
 app.post("/auth", function (request, response) {
   // Capture the input fields
@@ -68,15 +65,41 @@ app.post("/auth", function (request, response) {
 
 // http://localhost:3000/home
 app.get("/homepage", function (request, response) {
-  // If the user is loggedin
+  // Render homepage template
   if (request.session.loggedin) {
     // Output username
-    response.send("Welcome back, " + request.session.username + "!");
+
+    response.sendFile(path.join(__dirname + "/homepage.html"));
   } else {
     // Not logged in
     response.send("Please login to view this page!");
   }
-  response.end();
 });
+// http://localhost:3000/home
+app.get("/page1", function (request, response) {
+  // Render homepage template
+  if (request.session.username == "User1" || request.session.username == "User2") {
+    // Output username
 
+    response.sendFile(path.join(__dirname + "/page1.html"));
+  } else {
+    // Not logged in
+    response.sendFile(path.join(__dirname + "/page1.html"));
+  }
+});
+// app.get("/page1", function (request, response) {
+//   // Render homepage template
+//   response.sendFile(path.join(__dirname + "/page1.html"));
+// });
+app.get("/page1", function (request, response) {
+  // Render homepage template
+  if (request.session.username == "User1" || request.session.username == "User2") {
+    // Output username
+
+    response.sendFile(path.join(__dirname + "/page1.html"));
+  } else {
+    // Not logged in
+    response.sendFile(path.join(__dirname + "/page1.html"));
+  }
+});
 app.listen(3000);
