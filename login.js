@@ -2,6 +2,7 @@ const mysql = require("mysql");
 const express = require("express");
 const session = require("express-session");
 const path = require("path");
+const Router = express.Router();
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -22,17 +23,20 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "style")));
-
+app.use(express.static(path.join(__dirname, "script")));
+app.use((request, response, next) => {
+  response.header("Access-Control-Allow-Origin", "*");
+  response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  response.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
+  next();
+});
 // http://localhost:3000/
 app.get("/", function (request, response) {
   // Render login template
   response.sendFile(path.join(__dirname + "/login.html"));
 });
 // http://localhost:3000/
-app.get("/homepage", function (request, response) {
-  // Render homepage template
-  response.sendFile(path.join(__dirname + "/homepage.html"));
-});
+
 // http://localhost:3000/auth
 app.post("/auth", function (request, response) {
   // Capture the input fields
@@ -68,15 +72,51 @@ app.post("/auth", function (request, response) {
 
 // http://localhost:3000/home
 app.get("/homepage", function (request, response) {
-  // If the user is loggedin
+  // Render homepage template
   if (request.session.loggedin) {
     // Output username
-    response.send("Welcome back, " + request.session.username + "!");
-  } else {
+
+    response.sendFile(path.join(__dirname + "/homepage.html"));
+  }
+  else {
     // Not logged in
     response.send("Please login to view this page!");
   }
-  response.end();
 });
-
+// http://localhost:3000/home
+Router.get("/page1", function (request, response) {
+  // Render homepage template
+  if (request.session.username == "User1" || request.session.username == "User2") {
+    // Output username
+    // response.sendFile(path.join(__dirname + "/page1.html"));
+    return response.sendFile(path.join(__dirname + "/page1.html"));
+    // response.sendFile(path.join(__dirname + "/page1.html"));
+  } else {
+    // Not logged in
+    response.send("You don't have access to this");
+  }
+});
+// app.use("/page1", function (request, response) {
+//   // Render homepage template
+//   response.sendFile(path.join(__dirname + "/page1.html"));
+// });
+// app.get('/', (request, response) => { }
+//   response.sendFile('index.html', {
+//     root: './'
+//   }
+// });
+Router.get("/page1", function (request, response) { 
+   response.sendFile(path.join(__dirname + "/page1.html"));
+});
+app.use('/user', function(request, response, next){
+   response.send(request.session.username);
+   next();
+});
+ 
+app.get('/user', function(req, res){
+    console.log(req.session.username)
+});
+app.use((err, request, response, next) => {
+    response.status(err.status || 500).json({error: {message: err.message}});
+});
 app.listen(3000);
